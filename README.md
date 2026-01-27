@@ -1,7 +1,7 @@
 hfsprogs
 ========
 
-Apple's HFS utils, ported and patched for Linux.
+Apple's HFS utils, ported and patched for Linux. Now with debian patches applied!
 
 Originally [diskdev-cmds](https://opensource.apple.com/tarballs/diskdev_cmds/).<br />
 * Change `tarballs` to `source` if you want to browse the source.
