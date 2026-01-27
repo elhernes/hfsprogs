@@ -844,7 +844,7 @@ static	int	DelFThd( SGlobPtr GPtr, UInt32 fid )				//	the file ID
 
 	isHFSPlus = VolumeObjectIsHFSPlus( );
 	
-	BuildCatalogKey( fid, (const CatalogName*) nil, isHFSPlus, &key );
+	BuildCatalogKey(fid, NULL, isHFSPlus, &key);
 	result = SearchBTreeRecord( GPtr->calculatedCatalogFCB, &key, kNoHint, &foundKey, &record, &recSize, &hint );
 	
 	if ( result )	return ( IntError( GPtr, result ) );
@@ -910,7 +910,7 @@ static	OSErr	FixDirThread( SGlobPtr GPtr, UInt32 did )	//	the dir ID
 
 	isHFSPlus = VolumeObjectIsHFSPlus( );
 
-	BuildCatalogKey( did, (const CatalogName*) nil, isHFSPlus, &key );
+	BuildCatalogKey(did, NULL, isHFSPlus, &key);
 	result = SearchBTreeRecord( GPtr->calculatedCatalogFCB, &key, kNoHint, &foundKey, &record, &recSize, &hint );
 	
 	if ( result )
@@ -2171,7 +2171,7 @@ static	OSErr	FixOrphanedFiles ( SGlobPtr GPtr )
 				}
 
 				//-- Build the key for the file thread
-				BuildCatalogKey( cNodeID, nil, isHFSPlus, &key );
+				BuildCatalogKey(cNodeID, NULL, isHFSPlus, &key);
 
 				err = SearchBTreeRecord( GPtr->calculatedCatalogFCB, &key, kNoHint, 
 										 &tempKey, &threadRecord, &recordSize, &hint2 );

@@ -790,13 +790,13 @@ OSErr	CreateExtentsBTreeControlBlock( SGlobPtr GPtr )
 	//	set up our DFA extended BTCB area.  Will we have enough memory on all HFS+ volumes.
 	//
 	btcb->refCon = AllocateClearMemory( sizeof(BTreeExtensionsRec) );			// allocate space for our BTCB extensions
-	if ( btcb->refCon == nil ) {
+	if (btcb->refCon == NULL) {
 		err = R_NoMem;
 		goto exit;
 	}
 	size = (btcb->totalNodes + 7) / 8;											//	size of BTree bit map
 	((BTreeExtensionsRec*)btcb->refCon)->BTCBMPtr = AllocateClearMemory(size);			//	get precleared bitmap
-	if ( ((BTreeExtensionsRec*)btcb->refCon)->BTCBMPtr == nil )
+	if (((BTreeExtensionsRec*)btcb->refCon)->BTCBMPtr == NULL)
 	{
 		err = R_NoMem;
 		goto exit;
@@ -1145,13 +1145,13 @@ OSErr	CreateCatalogBTreeControlBlock( SGlobPtr GPtr )
 	//
 
 	btcb->refCon = AllocateClearMemory( sizeof(BTreeExtensionsRec) );			// allocate space for our BTCB extensions
-	if ( btcb->refCon == nil ) {
+	if (btcb->refCon == NULL) {
 		err = R_NoMem;
 		goto exit;
 	}
 	size = (btcb->totalNodes + 7) / 8;											//	size of BTree bit map
 	((BTreeExtensionsRec*)btcb->refCon)->BTCBMPtr = AllocateClearMemory(size);			//	get precleared bitmap
-	if ( ((BTreeExtensionsRec*)btcb->refCon)->BTCBMPtr == nil )
+	if (((BTreeExtensionsRec*)btcb->refCon)->BTCBMPtr == NULL)
 	{
 		err = R_NoMem;
 		goto exit;
@@ -1339,7 +1339,7 @@ OSErr CatHChk( SGlobPtr GPtr )
 	
 	//ее Can we ignore this part by just taking advantage of setting the selCode = 0x8001;
 	{ 
-		BuildCatalogKey( 1, (const CatalogName *)nil, isHFSPlus, &key );
+		BuildCatalogKey(1, NULL, isHFSPlus, &key);
 		result = SearchBTreeRecord( GPtr->calculatedCatalogFCB, &key, kNoHint, &foundKey, &threadRecord, &recSize, &hint );
 	
 		GPtr->TarBlock = hint;									/* set target block */
@@ -1443,7 +1443,7 @@ OSErr CatHChk( SGlobPtr GPtr )
 				/* 
 				 * Find thread record
 				 */
-				BuildCatalogKey( dprP->directoryID, (const CatalogName *) nil, isHFSPlus, &key );
+				BuildCatalogKey(dprP->directoryID, NULL, isHFSPlus, &key);
 				result = SearchBTreeRecord( GPtr->calculatedCatalogFCB, &key, kNoHint, &foundKey, &threadRecord, &recSize, &hint );
 				if ( result != noErr ) {
 					char idStr[16];
@@ -1780,26 +1780,26 @@ OSErr	CreateAttributesBTreeControlBlock( SGlobPtr GPtr )
 	//	set up our DFA extended BTCB area.  Will we have enough memory on all HFS+ volumes.
 	//
 	btcb->refCon = AllocateClearMemory( sizeof(BTreeExtensionsRec) );			// allocate space for our BTCB extensions
-	if ( btcb->refCon == nil ) {
+	if (btcb->refCon == NULL) {
 		err = R_NoMem;
 		goto exit;
 	}
 
 	if (btcb->totalNodes == 0)
 	{
-		((BTreeExtensionsRec*)btcb->refCon)->BTCBMPtr			= nil;
+		((BTreeExtensionsRec*)btcb->refCon)->BTCBMPtr			= NULL;
 		((BTreeExtensionsRec*)btcb->refCon)->BTCBMSize			= 0;
 		((BTreeExtensionsRec*)btcb->refCon)->realFreeNodeCount	= 0;
 	}
 	else
 	{
-		if ( btcb->refCon == nil ) {
+		if (btcb->refCon == NULL) {
 			err = R_NoMem;
 			goto exit;
 		}
 		size = (btcb->totalNodes + 7) / 8;											//	size of BTree bit map
 		((BTreeExtensionsRec*)btcb->refCon)->BTCBMPtr = AllocateClearMemory(size);			//	get precleared bitmap
-		if ( ((BTreeExtensionsRec*)btcb->refCon)->BTCBMPtr == nil )
+		if (((BTreeExtensionsRec*)btcb->refCon)->BTCBMPtr == NULL)
 		{
 			err = R_NoMem;
 			goto exit;
@@ -2358,7 +2358,7 @@ static	OSErr	RcdMDBEmbededVolDescriptionErr( SGlobPtr GPtr, OSErr type, HFSMaste
 	RcdError( GPtr, type );												//	first, record the error
 	
 	p = AllocMinorRepairOrder( GPtr, sizeof(EmbededVolDescription) );	//	get the node
-	if ( p == nil )	return( R_NoMem );
+	if (p == NULL)	return( R_NoMem );
 	
 	p->type							=  type;							//	save error info
 	desc							=  (EmbededVolDescription *) &(p->name);
@@ -2397,7 +2397,7 @@ static	OSErr	RcdInvalidWrapperExtents( SGlobPtr GPtr, OSErr type )
 	RcdError( GPtr, type );												//	first, record the error
 	
 	p = AllocMinorRepairOrder( GPtr, 0 );	//	get the node
-	if ( p == nil )	return( R_NoMem );
+	if (p == NULL)	return( R_NoMem );
 	
 	p->type							=  type;							//	save error info
 	
@@ -3029,7 +3029,7 @@ OSErr	CheckFileExtents( SGlobPtr GPtr, UInt32 fileNumber, UInt8 forkType,
 	foundBadExtent = false;
 	lastExtentIndex = GPtr->numExtents;
 	
-	while ( (extents != nil) && (err == noErr) )
+	while ((extents != NULL) && (err == noErr))
 	{	
 		//	checkout the extent record first
 		err = ChkExtRec( GPtr, extents, &lastExtentIndex );
@@ -3105,7 +3105,7 @@ OSErr	CheckFileExtents( SGlobPtr GPtr, UInt32 fileNumber, UInt8 forkType,
 			if ( err == btNotFound )
 			{
 				err = noErr;								//	 no more extent records
-				extents = nil;
+				extents = NULL;
 				break;
 			}
 			else if ( err != noErr )
@@ -3121,7 +3121,7 @@ OSErr	CheckFileExtents( SGlobPtr GPtr, UInt32 fileNumber, UInt8 forkType,
 			if ( err == btNotFound )
 			{
 				err = noErr;								//	 no more extent records
-				extents = nil;
+				extents = NULL;
 				break;
 			}
 			else if ( err != noErr )
@@ -3205,7 +3205,7 @@ static OSErr	AddExtentToOverlapList( SGlobPtr GPtr, HFSCatalogNodeID fileNumber,
 	}
 	
 	//	If it's uninitialized
-	if ( GPtr->overlappedExtents == nil )
+	if (GPtr->overlappedExtents == NULL)
 	{
 		GPtr->overlappedExtents	= (ExtentsTable **) NewHandleClear( sizeof(ExtentsTable) );
 		extentsTableH	= GPtr->overlappedExtents;

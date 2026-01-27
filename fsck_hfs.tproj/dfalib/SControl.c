@@ -82,7 +82,7 @@ CheckHFS( 	int fsReadRef, int fsWriteRef, int checkLevel, int repairLevel,
 {
 	SGlob				dataArea;	// Allocate the scav globals
 	short				temp; 	
-	FileIdentifierTable	*fileIdentifierTable	= nil;
+	FileIdentifierTable	*fileIdentifierTable	= NULL;
 	OSErr				err = noErr;
 	OSErr				scavError = 0;
 	int					scanCount = 0;
@@ -228,7 +228,7 @@ DoAgain:
 	}
 
 	//	Set up structures for post processing
-	if ( (autoRepair == true) && (dataArea.fileIdentifierTable != nil) )
+	if ((autoRepair == true) && (dataArea.fileIdentifierTable != NULL))
 	{
 	//	*repairInfo = *repairInfo | kVolumeHadOverlappingExtents;	//	Report back that volume has overlapping extents
 		fileIdentifierTable	= (FileIdentifierTable *) AllocateMemory( GetHandleSize( (Handle) dataArea.fileIdentifierTable ) );
@@ -239,7 +239,7 @@ DoAgain:
 	//
 	//	Post processing
 	//
-	if ( fileIdentifierTable != nil )
+	if (fileIdentifierTable != NULL)
 	{
 		DisposeMemory( fileIdentifierTable );
 	}
@@ -682,7 +682,7 @@ short CheckForStop( SGlob *GPtr )
 
 	//if ( ((ticks - 10) > GPtr->lastTickCount) || (dfaStage == kAboutToRepairStage) )			//	To reduce cursor flicker on fast machines, call through on a timed interval
 	//{
-		if ( GPtr->userCancelProc != nil )
+		if (GPtr->userCancelProc != NULL)
 		{
 			UInt64	progress = 0;
 			Boolean	progressChanged;
@@ -761,7 +761,7 @@ static int ScavSetUp( SGlob *GPtr)
 	short	ioRefNum;
 #endif
 
-	GPtr->MinorRepairsP = nil;
+	GPtr->MinorRepairsP = NULL;
 	
 	GPtr->itemsProcessed = 0;
 	GPtr->lastProgress = 0;
@@ -774,7 +774,7 @@ static int ScavSetUp( SGlob *GPtr)
 		ScavStaticStructures	*pointer;
 		
 		pointer = (ScavStaticStructures *) AllocateClearMemory( sizeof(ScavStaticStructures) );
-		if ( pointer == nil ) {
+		if (pointer == NULL) {
 			if ( GPtr->logLevel >= kDebugLog ) {
 				printf( "\t error %d - could not allocate %i bytes of memory \n",
 					R_NoMem, sizeof(ScavStaticStructures) );
@@ -831,7 +831,7 @@ static int ScavSetUp( SGlob *GPtr)
 	//	Save current value of vcbWrCnt, to detect modifications to volume by other apps etc
 	if ( GPtr->volumeFeatures & volumeIsMountedMask )
 	{
-		FlushVol( nil, GPtr->realVCB->vcbVRefNum );	//	Ask HFS to update all changes to disk
+		FlushVol(NULL, GPtr->realVCB->vcbVRefNum);	//	Ask HFS to update all changes to disk
 		GPtr->wrCnt = GPtr->realVCB->vcbWrCnt;		//	Remember write count after writing changes
 	}
 #endif
@@ -949,7 +949,7 @@ static int ScavSetUp( SGlob *GPtr)
  	
 	// Keep a valid file id list for HFS volumes
 	GPtr->validFilesList = (UInt32**)NewHandle( 0 );
-	if ( GPtr->validFilesList == nil ) {
+	if (GPtr->validFilesList == NULL) {
 		if ( GPtr->logLevel >= kDebugLog ) {
 			printf( "\t error %d - could not allocate file ID list \n", R_NoMem );
 		}
@@ -995,17 +995,17 @@ static int ScavTerm( SGlobPtr GPtr )
 
 	(void) BitMapCheckEnd();
 
-	while( (rP = GPtr->MinorRepairsP) != nil )		//	loop freeing leftover (undone) repair orders
+	while((rP = GPtr->MinorRepairsP) != NULL)		//	loop freeing leftover (undone) repair orders
 	{
 		GPtr->MinorRepairsP = rP->link;				//	(in case repairs were not made)
 		DisposeMemory(rP);
 		err = MemError();
 	}
 	
-	if( GPtr->validFilesList != nil )
+	if (GPtr->validFilesList != NULL)
 		DisposeHandle( (Handle) GPtr->validFilesList );
 	
-	if( GPtr->overlappedExtents != nil ) {
+	if (GPtr->overlappedExtents != NULL) {
  		extentsTableH = GPtr->overlappedExtents;
  	
 		/* Overlapped extents list also allocated memory for attribute name */
@@ -1021,44 +1021,44 @@ static int ScavTerm( SGlobPtr GPtr )
 		DisposeHandle( (Handle) GPtr->overlappedExtents );
 	}
 	
-	if( GPtr->fileIdentifierTable != nil )
+	if (GPtr->fileIdentifierTable != NULL)
 		DisposeHandle( (Handle) GPtr->fileIdentifierTable );
 	
-	if( GPtr->calculatedVCB == nil )								//	already freed?
+	if (GPtr->calculatedVCB == NULL)								//	already freed?
 		return( noErr );
 
 	//	If the FCB's and BTCB's have been set up, dispose of them
 	fcbP = GPtr->calculatedExtentsFCB;	// release extent file BTree bit map
-	if ( fcbP != nil )
+	if (fcbP != NULL)
 	{
 		btcbP = (BTreeControlBlock*)fcbP->fcbBtree;
-		if ( btcbP != nil)
+		if (btcbP != NULL)
 		{
-			if( btcbP->refCon != nil )
+			if (btcbP->refCon != NULL)
 			{
-				if(((BTreeExtensionsRec*)btcbP->refCon)->BTCBMPtr != nil)
+				if (((BTreeExtensionsRec*)btcbP->refCon)->BTCBMPtr != NULL)
 				{
 					DisposeMemory(((BTreeExtensionsRec*)btcbP->refCon)->BTCBMPtr);
 					err = MemError();
 				}
 				DisposeMemory( (Ptr)btcbP->refCon );
 				err = MemError();
-				btcbP->refCon = nil;
+				btcbP->refCon = NULL;
 			}
 				
 			fcbP = GPtr->calculatedCatalogFCB;	//	release catalog BTree bit map
 			btcbP = (BTreeControlBlock*)fcbP->fcbBtree;
 				
-			if( btcbP->refCon != nil )
+			if (btcbP->refCon != NULL)
 			{
-				if(((BTreeExtensionsRec*)btcbP->refCon)->BTCBMPtr != nil)
+				if (((BTreeExtensionsRec*)btcbP->refCon)->BTCBMPtr != NULL)
 				{
 					DisposeMemory(((BTreeExtensionsRec*)btcbP->refCon)->BTCBMPtr);
 					err = MemError();
 				}
 				DisposeMemory( (Ptr)btcbP->refCon );
 				err = MemError();
-				btcbP->refCon = nil;
+				btcbP->refCon = NULL;
 			}
 		}
 	}
@@ -1066,7 +1066,7 @@ static int ScavTerm( SGlobPtr GPtr )
 	DisposeMemory( GPtr->calculatedVCB );						//	Release our block of data structures	
 	err = MemError();
 
-	GPtr->calculatedVCB = nil;
+	GPtr->calculatedVCB = NULL;
 
 	return( noErr );
 }
@@ -1113,7 +1113,7 @@ Boolean IsBlueBoxSharedDrive ( DrvQElPtr dqPtr )
 	// Now look at the name of the Driver name. If it is .BlueBoxShared keep it out of the list of available disks.
 	driverDCtlHandle = GetDCtlEntry(dqPtr->dQRefNum);
 	driverDCtlPtr = *driverDCtlHandle;
-	if((((driverDCtlPtr->dCtlFlags) & Is_Native_Mask) == 0) && (driverDCtlPtr->dCtlDriver != nil))
+	if((((driverDCtlPtr->dCtlFlags) & Is_Native_Mask) == 0) && (driverDCtlPtr->dCtlDriver != NULL))
 	{
 		if (((driverDCtlPtr->dCtlFlags) & Is_Ram_Based_Mask) == 0)
 		{
@@ -1127,19 +1127,19 @@ Boolean IsBlueBoxSharedDrive ( DrvQElPtr dqPtr )
 			
 		}
 		driverName = (StringPtr)&(drvrHeaderPtr->drvrName);
-		if (!(IdenticalString(driverName,blueBoxSharedDriverName,nil)))
+		if (!(IdenticalString(driverName,blueBoxSharedDriverName,NULL)))
 		{
 			return( true );
 		}
 
 		// Special case for the ".Sony" floppy driver which might be accessed in Shared mode inside the Blue Box
 		// Test its "where" string instead of the driver name.
-		if (!(IdenticalString(driverName,sonyDriverName,nil)))
+		if (!(IdenticalString(driverName,sonyDriverName,NULL)))
 		{
 			CntrlParam			paramBlock;
 		
-			paramBlock.ioCompletion	= nil;
-			paramBlock.ioNamePtr	= nil;
+			paramBlock.ioCompletion	= NULL;
+			paramBlock.ioNamePtr	= NULL;
 			paramBlock.ioVRefNum	= dqPtr->dQDrive;
 			paramBlock.ioCRefNum	= dqPtr->dQRefNum;
 			paramBlock.csCode		= kDriveIcon;						// return physical icon
@@ -1152,7 +1152,7 @@ Boolean IsBlueBoxSharedDrive ( DrvQElPtr dqPtr )
 				
 				iconAndStringRecPtr = * (IconAndStringRecPtr*) & paramBlock.csParam;
 				whereStringPtr = (StringPtr) & iconAndStringRecPtr->string;
-				if (!(IdenticalString(whereStringPtr,blueBoxFloppyWhereString,nil)))
+				if (!(IdenticalString(whereStringPtr,blueBoxFloppyWhereString,NULL)))
 				{
 					return( true );
 				}

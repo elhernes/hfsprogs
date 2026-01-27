@@ -1013,7 +1013,7 @@ static int BTKeyChk( SGlobPtr GPtr, NodeDescPtr nodeP, BTreeControlBlock *btcb )
 	UInt16				keyLength;
 	KeyPtr 				keyPtr;
 	UInt8				*dataPtr;
-	KeyPtr				prevkeyP	= nil;
+	KeyPtr				prevkeyP	= NULL;
 
 
 	if ( nodeP->numRecords == 0 )
@@ -1044,7 +1044,7 @@ static int BTKeyChk( SGlobPtr GPtr, NodeDescPtr nodeP, BTreeControlBlock *btcb )
 				return( E_KeyLen );
 			}
 	
-			if ( prevkeyP != nil )
+			if (prevkeyP != NULL)
 			{
 				if ( CompareKeys( (BTreeControlBlockPtr)btcb, prevkeyP, keyPtr ) >= 0 )
 				{
