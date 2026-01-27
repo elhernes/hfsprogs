@@ -72,7 +72,7 @@
 #define NAME_MAX	255
 
 /* Byteswap stuff */
-#define NXSwapHostLongToBig(x)		cpu_to_be64(x)
+#define NXSwapHostLongToBig(x)		cpu_to_be32(x)
 #define NXSwapBigShortToHost(x) 	be16_to_cpu(x)
 #define OSSwapBigToHostInt16(x)		be16_to_cpu(x)
 #define NXSwapBigLongToHost(x)		be32_to_cpu(x)
@@ -88,6 +88,9 @@
 #ifndef be32_to_cpu
 #define be32_to_cpu(x) bswap_32(x)
 #endif
+#ifndef cpu_to_be32
+#define cpu_to_be32(x) bswap_32(x)
+#endif
 #ifndef be64_to_cpu
 #define be64_to_cpu(x) bswap_64(x)
 #endif
@@ -101,6 +104,9 @@
 #endif
 #ifndef be32_to_cpu
 #define be32_to_cpu(x)	(x)
+#endif
+#ifndef cpu_to_be32
+#define cpu_to_be32(x)	(x)
 #endif
 #ifndef be64_to_cpu
 #define be64_to_cpu(x)	(x)
