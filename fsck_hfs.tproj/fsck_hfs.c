@@ -24,10 +24,14 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/param.h>
+#if !LINUX
 #include <sys/ucred.h>
+#endif
 #include <sys/mount.h>
 #include <sys/ioctl.h>
+#if !LINUX
 #include <sys/disk.h>
+#endif
 
 #include <hfs/hfs_mount.h>
 
@@ -195,8 +199,12 @@ main(argc, argv)
 	if (guiControl)
 		debug = 0; /* debugging is for command line only */
 
+#if LINUX
+// FIXME
+#else
 	if (signal(SIGINT, SIG_IGN) != SIG_IGN)
 		(void)signal(SIGINT, catch);
+#endif
 
 	if (argc < 1) {
 		(void) fprintf(stderr, "%s: missing special-device\n", progname);
@@ -218,7 +226,9 @@ checkfilesys(char * filesys)
 	int chkLev, repLev, logLev;
 	int blockDevice_fd, canWrite;
 	char *unraw, *mntonname;
+#if !LINUX
 	struct statfs *fsinfo;
+#endif
 	int fs_fd=-1;  // fd to the root-dir of the fs we're checking (only w/lfag == 1)
 
 	flags = 0;
@@ -227,7 +237,9 @@ checkfilesys(char * filesys)
 	canWrite = 0;
 	unraw = NULL;
 	mntonname = NULL;
-
+#if LINUX
+	// FIXME
+#else
 	if (lflag) {
 		result = getmntinfo(&fsinfo, MNT_NOWAIT);
 
@@ -257,10 +269,10 @@ checkfilesys(char * filesys)
 		    }
 		}
 	}
-
+#endif
 	if (debug && preen)
 		pwarn("starting\n");
-	
+
 	if (setup( filesys, &blockDevice_fd, &canWrite ) == 0) {
 		if (preen)
 			pfatal("CAN'T CHECK FILE SYSTEM.");
@@ -278,7 +290,7 @@ checkfilesys(char * filesys)
 	repLev = kMajorRepairs;
 	logLev = kVerboseLog;
 
-	if (yflag)	
+	if (yflag)
 		repLev = kMajorRepairs;
 
 	if (quick) {
@@ -298,16 +310,16 @@ checkfilesys(char * filesys)
 
 	if (nflag)
 		repLev = kNeverRepair;
-		
+
 	if ( rebuildCatalogBtree ) {
 		chkLev = kPartialCheck;
 		repLev = kForceRepairs;  // this will force rebuild of catalog B-Tree file
 	}
-		
+
 	/*
 	 * go check HFS volume...
 	 */
-	result = CheckHFS(	fsreadfd, fswritefd, chkLev, repLev, logLev, 
+	result = CheckHFS(	fsreadfd, fswritefd, chkLev, repLev, logLev,
 						guiControl, lostAndFoundMode, canWrite, &fsmodified );
 	if (!hotroot) {
 		ckfini(1);
@@ -330,6 +342,9 @@ checkfilesys(char * filesys)
 			}
 		}
 	} else {
+#if LINUX
+	// FIXME
+#else
 		struct statfs stfs_buf;
 		/*
 		 * Check to see if root is mounted read-write.
@@ -339,19 +354,25 @@ checkfilesys(char * filesys)
 		else
 			flags = 0;
 		ckfini(flags & MNT_RDONLY);
+#endif
 	}
 
 	/* XXX free any allocated memory here */
 
 	if (hotroot && fsmodified) {
+#if !LINUX
 		struct hfs_mount_args args;
+#endif
 		/*
 		 * We modified the root.  Do a mount update on
 		 * it, unless it is read-write, so we can continue.
 		 */
 		if (!preen)
 			printf("\n***** FILE SYSTEM WAS MODIFIED *****\n");
-		if (flags & MNT_RDONLY) {		
+#if LINUX
+		// FIXME
+#else
+		if (flags & MNT_RDONLY) {
 			bzero(&args, sizeof(args));
 			flags |= MNT_UPDATE | MNT_RELOAD;
 			if (mount("hfs", "/", flags, &args) == 0) {
@@ -359,6 +380,7 @@ checkfilesys(char * filesys)
 				goto ExitThisRoutine;
 			}
 		}
+#endif
 		if (!preen)
 			printf("\n***** REBOOT NOW *****\n");
 		sync();
@@ -367,7 +389,7 @@ checkfilesys(char * filesys)
 	}
 
 	result = (result == 0) ? 0 : EEXIT;
-	
+
 ExitThisRoutine:
 	if (lflag) {
 	    fcntl(fs_fd, F_THAW_FS, NULL);
@@ -401,16 +423,18 @@ setup( char *dev, int *blockDevice_fdPtr, int *canWritePtr )
 	fswritefd = -1;
 	*blockDevice_fdPtr = -1;
 	*canWritePtr = 0;
-	
+
 	if (stat(dev, &statb) < 0) {
 		printf("Can't stat %s: %s\n", dev, strerror(errno));
 		return (0);
 	}
+#if !LINUX
 	if ((statb.st_mode & S_IFMT) != S_IFCHR) {
 		pfatal("%s is not a character device", dev);
 		if (reply("CONTINUE") == 0)
 			return (0);
 	}
+#endif
 	if ((fsreadfd = open(dev, O_RDONLY)) < 0) {
 		printf("Can't open %s: %s\n", dev, strerror(errno));
 		return (0);
@@ -419,7 +443,7 @@ setup( char *dev, int *blockDevice_fdPtr, int *canWritePtr )
 	/* attempt to get write access to the block device and if not check if volume is */
 	/* mounted read-only.  */
 	getWriteAccess( dev, blockDevice_fdPtr, canWritePtr );
-	
+
 	if (preen == 0 && !guiControl)
 		printf("** %s", dev);
 	if (nflag || (fswritefd = open(dev, O_WRONLY)) < 0) {
@@ -433,10 +457,14 @@ setup( char *dev, int *blockDevice_fdPtr, int *canWritePtr )
 		printf("\n");
 
 	/* Get device block size to initialize cache */
+#if LINUX
+	devBlockSize = 512;
+#else
 	if (ioctl(fsreadfd, DKIOCGETBLOCKSIZE, &devBlockSize) < 0) {
 		pfatal ("Can't get device block size\n");
 		return (0);
 	}
+#endif
 
 	 /* calculate the cache block size and total blocks */
 	if (CalculateCacheSize(userCacheSize, &cacheBlockSize, &cacheTotalBlocks, debug) != 0) {
@@ -463,11 +491,15 @@ setup( char *dev, int *blockDevice_fdPtr, int *canWritePtr )
 
 static void getWriteAccess( char *dev, int *blockDevice_fdPtr, int *canWritePtr )
 {
+#if !LINUX
 	int					i;
 	int					myMountsCount;
+#endif
 	void *				myPtr;
 	char *				myCharPtr;
+#if !LINUX
 	struct statfs *		myBufPtr;
+#endif
 	void *				myNamePtr;
 
 	myPtr = NULL;
@@ -490,6 +522,9 @@ static void getWriteAccess( char *dev, int *blockDevice_fdPtr, int *canWritePtr 
 	}
 	
 	// get count of mounts then get the info for each 
+#if LINUX
+	// FIXME
+#else
 	myMountsCount = getfsstat( NULL, 0, MNT_NOWAIT );
 	if ( myMountsCount < 0 )
 		goto ExitThisRoutine;
@@ -513,8 +548,8 @@ static void getWriteAccess( char *dev, int *blockDevice_fdPtr, int *canWritePtr 
 		}
 		myBufPtr++;
 	}
-	*canWritePtr = 1;  // single user will get us here, f_mntfromname is not /dev/diskXXXX 
-	
+#endif
+	*canWritePtr = 1;  // single user will get us here, f_mntfromname is not /dev/diskXXXX
 ExitThisRoutine:
 	if ( myPtr != NULL )
 		free( myPtr );

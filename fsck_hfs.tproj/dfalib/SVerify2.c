@@ -32,7 +32,9 @@
 */
 
 #include <sys/ioctl.h>
+#if !LINUX
 #include <sys/disk.h>
+#endif
 
 #include "BTree.h"
 #include "BTreePrivate.h"
@@ -1354,8 +1356,13 @@ OSErr CompareVolumeHeader( SGlobPtr GPtr, HFSPlusVolumeHeader *volumeHeader )
 	 * clump size for read-only media is irrelevant we skip the clump size 
 	 * check to avoid non useful warnings. 
 	 */
+#if LINUX
+	// FIXME
+	isWriteable = 1;
+#else
 	isWriteable = 0;
 	ioctl( GPtr->DrvNum, DKIOCISWRITABLE, &isWriteable );
+#endif
 	if ( isWriteable != 0 && 
 		 volumeHeader->catalogFile.clumpSize != vcb->vcbCatalogFile->fcbClumpSize ) {
 		PrintError(GPtr, E_InvalidClumpSize, 0);
