@@ -789,8 +789,8 @@ OSErr	CreateExtentsBTreeControlBlock( SGlobPtr GPtr )
 	//
 	//	set up our DFA extended BTCB area.  Will we have enough memory on all HFS+ volumes.
 	//
-	btcb->refCon = (UInt32) AllocateClearMemory( sizeof(BTreeExtensionsRec) );			// allocate space for our BTCB extensions
-	if ( btcb->refCon == (UInt32) nil ) {
+	btcb->refCon = AllocateClearMemory( sizeof(BTreeExtensionsRec) );			// allocate space for our BTCB extensions
+	if ( btcb->refCon == nil ) {
 		err = R_NoMem;
 		goto exit;
 	}
@@ -1144,8 +1144,8 @@ OSErr	CreateCatalogBTreeControlBlock( SGlobPtr GPtr )
 	//	set up our DFA extended BTCB area.  Will we have enough memory on all HFS+ volumes.
 	//
 
-	btcb->refCon = (UInt32) AllocateClearMemory( sizeof(BTreeExtensionsRec) );			// allocate space for our BTCB extensions
-	if ( btcb->refCon == (UInt32)nil ) {
+	btcb->refCon = AllocateClearMemory( sizeof(BTreeExtensionsRec) );			// allocate space for our BTCB extensions
+	if ( btcb->refCon == nil ) {
 		err = R_NoMem;
 		goto exit;
 	}
@@ -1779,8 +1779,8 @@ OSErr	CreateAttributesBTreeControlBlock( SGlobPtr GPtr )
 	//
 	//	set up our DFA extended BTCB area.  Will we have enough memory on all HFS+ volumes.
 	//
-	btcb->refCon = (UInt32) AllocateClearMemory( sizeof(BTreeExtensionsRec) );			// allocate space for our BTCB extensions
-	if ( btcb->refCon == (UInt32)nil ) {
+	btcb->refCon = AllocateClearMemory( sizeof(BTreeExtensionsRec) );			// allocate space for our BTCB extensions
+	if ( btcb->refCon == nil ) {
 		err = R_NoMem;
 		goto exit;
 	}
@@ -1793,7 +1793,7 @@ OSErr	CreateAttributesBTreeControlBlock( SGlobPtr GPtr )
 	}
 	else
 	{
-		if ( btcb->refCon == (UInt32)nil ) {
+		if ( btcb->refCon == nil ) {
 			err = R_NoMem;
 			goto exit;
 		}

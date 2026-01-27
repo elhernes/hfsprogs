@@ -1034,7 +1034,7 @@ static int ScavTerm( SGlobPtr GPtr )
 		btcbP = (BTreeControlBlock*)fcbP->fcbBtree;
 		if ( btcbP != nil)
 		{
-			if( btcbP->refCon != (UInt32)nil )
+			if( btcbP->refCon != nil )
 			{
 				if(((BTreeExtensionsRec*)btcbP->refCon)->BTCBMPtr != nil)
 				{
@@ -1043,13 +1043,13 @@ static int ScavTerm( SGlobPtr GPtr )
 				}
 				DisposeMemory( (Ptr)btcbP->refCon );
 				err = MemError();
-				btcbP->refCon = (UInt32)nil;
+				btcbP->refCon = nil;
 			}
 				
 			fcbP = GPtr->calculatedCatalogFCB;	//	release catalog BTree bit map
 			btcbP = (BTreeControlBlock*)fcbP->fcbBtree;
 				
-			if( btcbP->refCon != (UInt32)nil )
+			if( btcbP->refCon != nil )
 			{
 				if(((BTreeExtensionsRec*)btcbP->refCon)->BTCBMPtr != nil)
 				{
@@ -1058,7 +1058,7 @@ static int ScavTerm( SGlobPtr GPtr )
 				}
 				DisposeMemory( (Ptr)btcbP->refCon );
 				err = MemError();
-				btcbP->refCon = (UInt32)nil;
+				btcbP->refCon = nil;
 			}
 		}
 	}

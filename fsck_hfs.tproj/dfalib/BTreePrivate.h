@@ -104,6 +104,9 @@ typedef enum {
 
 ///////////////////////////////////// Types /////////////////////////////////////
 
+// Forward declaration from Scavenger.h
+struct BTreeExtensionsRec;
+
 typedef struct BTreeControlBlock {					// fields specific to BTree CBs
 
 	UInt8		keyCompareType;   /* Key string Comparison Type */
@@ -144,7 +147,7 @@ typedef struct BTreeControlBlock {					// fields specific to BTree CBs
 	UInt32						 numPossibleHints;	// Looks like a formated hint
 	UInt32						 numValidHints;		// Hint used to find correct record.
 	
-	UInt32						 refCon;			//	Used by DFA to point to private data.
+	struct BTreeExtensionsRec			*refCon;			//	Used by DFA to point to private data.
 	SFCB						*fcbPtr;		// fcb of btree file
 	
 } BTreeControlBlock, *BTreeControlBlockPtr;
