@@ -18,9 +18,7 @@ install(TARGETS newfs_hfs
 )
 
 # Create mkfs.hfsplus symlink
-install(CODE "
-    file(CREATE_LINK newfs_hfs ${CMAKE_INSTALL_SBINDIR}/mkfs.hfsplus SYMBOLIC)
-")
+install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink newfs_hfs \$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_SBINDIR}/mkfs.hfsplus)")
 
 install(FILES newfs_hfs.8
     DESTINATION ${CMAKE_INSTALL_MANDIR}/man8
