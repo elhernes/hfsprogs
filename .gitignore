@@ -6,3 +6,4 @@
 debian/*.substvars
 debian/files
 debian/hfsprogs
+build/

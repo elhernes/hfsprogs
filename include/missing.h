@@ -1,12 +1,24 @@
 #ifndef _MISSING_H_
 #define _MISSING_H_
 
-#include <endian.h>
-#include <byteswap.h>
 #include <errno.h>
 #include <stdint.h>
 #include <string.h>
+
+#ifdef __APPLE__
+#include <machine/endian.h>
+#include <libkern/OSByteOrder.h>
+#define bswap_16(x) OSSwapInt16(x)
+#define bswap_32(x) OSSwapInt32(x)
+#define bswap_64(x) OSSwapInt64(x)
+#define __BYTE_ORDER BYTE_ORDER
+#define __LITTLE_ENDIAN LITTLE_ENDIAN
+#define __BIG_ENDIAN BIG_ENDIAN
+#else
+#include <endian.h>
+#include <byteswap.h>
 #include <bsd/string.h>
+#endif
 
 #define MAXBSIZE		(256 * 4096)
 
