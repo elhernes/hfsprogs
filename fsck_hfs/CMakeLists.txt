@@ -19,7 +19,8 @@ target_include_directories(fsck_hfs PRIVATE dfalib)
 # Link against dfalib and libbsd
 target_link_libraries(fsck_hfs PRIVATE dfa)
 
-find_library(BSD_LIBRARY bsd REQUIRED)
+#find_library(BSD_LIBRARY bsd REQUIRED)
+set(BSD_LIBRARY bsd)
 target_link_libraries(fsck_hfs PRIVATE ${BSD_LIBRARY})
 
 # Installation
